@@ -38,7 +38,7 @@ struct
     let y = size_y / m in
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do (* COLOR NEEDS TO BE CHANGED BASED ON AGE *)
-	set_color (match w.(i).(j).state with Dead -> white | Alive -> Graphics.rgb (w.(i).(j).age*10) (w.(i).(j).age*20) (w.(i).(j).age*30));
+        set_color (match w.(i).(j).state with Dead -> white | Alive -> Graphics.rgb (w.(i).(j).age+(Random.int 255)) (w.(i).(j).age+(Random.int 255)) (w.(i).(j).age+(Random.int 255)));
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
