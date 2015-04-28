@@ -1,6 +1,7 @@
 (* Conway's Game of Life *)
 
-(* ocamlopt -o life graphics.cmxa lifegame.ml *)
+(* Compile with ocamlopt -o life graphics.cmxa ourlife.ml *)
+(* Run with ./life *)
 
 type state = Dead | Alive
 type cell = {state : state; age : int}
@@ -32,7 +33,7 @@ struct
     let y = size_y / m in
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do (* COLOR NEEDS TO BE CHANGED BASED ON AGE *)
-	set_color (match w.(i).(j).state with Dead -> white | Alive -> black);
+	set_color (match w.(i).(j).state with Dead -> white | Alive -> Graphics.rgb (w.(i).(j).age*10) (w.(i).(j).age*20) (w.(i).(j).age*30));
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
@@ -99,7 +100,7 @@ struct
 	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbors !w x y)
     in
     match !w.(x).(y).state with
-    | Dead  ->
+    | Dead ->
       if n = 3
       then {state = Alive; age = 0}
       else {state = Dead; age = !w.(x).(y).age + 1}
@@ -116,7 +117,7 @@ struct
 end
 
 let () = 
-  try
+  (*try*)
     while true do Model.next_state () done
-  with Exit ->
-    View.close ()
+  (*with Exit ->
+    View.close ()*)
