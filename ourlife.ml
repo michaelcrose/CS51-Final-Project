@@ -77,14 +77,13 @@ struct
     Random.self_init ();
     fun () -> 
       w := Array.init !x (fun _ -> Array.init !y 
-	(fun _ -> if Random.bool () then {state: Dead; age: 0} else {state: Alive; age: 0}));
+	(fun _ -> if Random.bool () then {state = Dead; age = 0} else {state = Alive; age = 0}));
       View.draw !w
 
   let () = rand ()
   (* Random initialization of [w] *)
 
-  let neighbours w x y =
-    (* The world is considered as a tore *)
+  let neighbors w x y =
     let h = Array.length w - 1 in
     let v = Array.length w.(0) - 1 in
     let wi = w.(x) in
@@ -92,16 +91,22 @@ struct
     let wn = w.(if x = h then 0 else x + 1) in
     let yp = if y = 0 then v else y - 1 in
     let yn = if y = v then 0 else y + 1 in
-    [ wp.(y); wp.(yp); wi.(yp); wn.(yp); wn.(y); wn.(yn); wi.(yn); wp.(yn) ]
+    [ wp.(y).state; wp.(yp).state; wi.(yp).state; wn.(yp).state; wn.(y).state; wn.(yn).state; wi.(yn).state; wp.(yn).state]
 
   let next_one_state x y = 
     let n = 
       List.fold_left (* make this compatible with new cell type *)
-	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbours !w x y)
+	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbors !w x y)
     in
     match !w.(x).(y).state with
-    | Dead  -> if n = 3 then Alive else Dead
-    | Alive -> if n < 2 || n > 3 then Dead else Alive
+    | Dead  ->
+      if n = 3
+      then {state = Alive; age = 0}
+      else {state = Dead; age = 0}
+    | Alive ->
+      if n < 2 || n > 3
+      then {state = Dead; age = 0}
+      else {state = Alive; age = 0}
 
   let next_state () =
     let x = get_x () in
