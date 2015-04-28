@@ -2,7 +2,8 @@
 
 (* ocamlopt -o life graphics.cmxa lifegame.ml *)
 
-type cell = Dead | Alive
+type state = Dead | Alive
+type cell = {state : state; age : int}
 type grid = cell array array
 
 module View : 
@@ -59,8 +60,7 @@ struct
   let x = ref default_size
   let y = ref default_size
 
-  let w = ref [||]
-    (* Late initialization *)
+  let w = ref [||] (* <-- Empty Array *)
 
   let get_x () = Array.length !w
   let get_y () = Array.length !w.(0)
@@ -77,11 +77,11 @@ struct
     Random.self_init ();
     fun () -> 
       w := Array.init !x (fun _ -> Array.init !y 
-			    (fun _ -> if Random.bool () then Dead else Alive));
+	(fun _ -> if Random.bool () then Dead else Alive));
       View.draw !w
 
   let () = rand ()
-    (* Random initialization of [w] *)
+  (* Random initialization of [w] *)
 
   let neighbours w x y =
     (* The world is considered as a tore *)
@@ -100,8 +100,8 @@ struct
 	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbours !w x y)
     in
     match !w.(x).(y) with
-      | Dead  -> if n = 3 then Alive else Dead
-      | Alive -> if n < 2 || n > 3 then Dead else Alive
+    | Dead  -> if n = 3 then Alive else Dead
+    | Alive -> if n < 2 || n > 3 then Dead else Alive
 
   let next_state () =
     let x = get_x () in
