@@ -102,11 +102,11 @@ struct
     | Dead  ->
       if n = 3
       then {state = Alive; age = 0}
-      else {state = Dead; age = 0}
+      else {state = Dead; age = !w.(x).(y).age + 1}
     | Alive ->
       if n < 2 || n > 3
       then {state = Dead; age = 0}
-      else {state = Alive; age = 0}
+      else {state = Alive; age = !w.(x).(y).age + 1}
 
   let next_state () =
     let x = get_x () in
