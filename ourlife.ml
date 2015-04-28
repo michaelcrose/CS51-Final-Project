@@ -12,7 +12,7 @@ sig
   val size_y : int
   val draw : grid -> unit
   val close : unit -> unit
-end = 
+end =
 struct
 
   open Graphics
@@ -32,7 +32,7 @@ struct
     let y = size_y / m in
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do
-	set_color (match w.(i).(j) with Dead -> white | Alive -> black);
+	set_color (match w.(i).(j).state with Dead -> white | Alive -> black);
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
@@ -77,7 +77,7 @@ struct
     Random.self_init ();
     fun () -> 
       w := Array.init !x (fun _ -> Array.init !y 
-	(fun _ -> if Random.bool () then Dead else Alive));
+	(fun _ -> if Random.bool () then {state: Dead; age: 0} else {state: Alive; age: 0}));
       View.draw !w
 
   let () = rand ()
@@ -96,10 +96,10 @@ struct
 
   let next_one_state x y = 
     let n = 
-      List.fold_left 
+      List.fold_left (* make this compatible with new cell type *)
 	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbours !w x y)
     in
-    match !w.(x).(y) with
+    match !w.(x).(y).state with
     | Dead  -> if n = 3 then Alive else Dead
     | Alive -> if n < 2 || n > 3 then Dead else Alive
 
