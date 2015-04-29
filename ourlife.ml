@@ -17,9 +17,14 @@ end =
 struct
 
   open Graphics
+    
+  let argc = Array.length Sys.argv
+  let width = if argc > 2 then Sys.argv.(2) else "500"
+  let height = if argc > 3 then Sys.argv.(3) else "500"
+  let rules = if argc > 1 then Sys.argv.(1) else "B3/S23" (* isn't used yet *)
 
   let () =
-    open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
+    open_graph (Sys.getenv "DISPLAY" ^ " " ^ width ^ "x" ^ height);
     display_mode false;
     set_window_title "Game of Life"
 
@@ -34,7 +39,7 @@ struct
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do (* COLOR NEEDS TO BE CHANGED BASED ON AGE *)
 	set_color (match w.(i).(j).state with Dead -> white | Alive -> 
-	  Graphics.rgb ((255 + w.(i).(j).age) mod 255) ((255 + w.(i).(j).age) mod 255) ((255 + w.(i).(j).age) mod 255));
+	  Graphics.rgb ((255 + !w.(i).(j).age) mod 255) ((255 + !w.(i).(j).age) mod 255) ((255 + !w.(i).(j).age) mod 255));
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
@@ -116,3 +121,7 @@ struct
     w := Array.init x (fun i -> Array.init y (next_one_state i));
     View.draw !w
 end
+
+let () = 
+    while true do Model.next_state () done
+
