@@ -17,9 +17,14 @@ end =
 struct
 
   open Graphics
+    
+  let argc = Array.length Sys.argv
+  let width = if argc > 2 then Sys.argv.(2) else "500"
+  let height = if argc > 3 then Sys.argv.(3) else "500"
+  let rules = if argc > 1 then Sys.argv.(1) else "B3/S23" (* isn't used yet *)
 
   let () =
-    open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
+    open_graph (Sys.getenv "DISPLAY" ^ " " ^ width ^ "x" ^ height);
     display_mode false;
     set_window_title "Game of Life"
 
@@ -117,7 +122,4 @@ struct
 end
 
 let () = 
-  (*try*)
     while true do Model.next_state () done
-  (*with Exit ->
-    View.close ()*)
