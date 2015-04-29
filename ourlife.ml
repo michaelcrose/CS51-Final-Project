@@ -33,7 +33,8 @@ struct
     let y = size_y / m in
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do (* COLOR NEEDS TO BE CHANGED BASED ON AGE *)
-	set_color (match w.(i).(j).state with Dead -> white | Alive -> Graphics.rgb (w.(i).(j).age*10) (w.(i).(j).age*20) (w.(i).(j).age*30));
+	set_color (match w.(i).(j).state with Dead -> white | Alive -> 
+	  Graphics.rgb ((255 + w.(i).(j).age) mod 255) ((255 + w.(i).(j).age) mod 255) ((255 + w.(i).(j).age) mod 255));
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
@@ -115,9 +116,3 @@ struct
     w := Array.init x (fun i -> Array.init y (next_one_state i));
     View.draw !w
 end
-
-let () = 
-  (*try*)
-    while true do Model.next_state () done
-  (*with Exit ->
-    View.close ()*)
