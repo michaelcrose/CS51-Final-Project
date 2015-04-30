@@ -10,8 +10,7 @@ type grid = cell array array
 let argc = Array.length Sys.argv
   let () =
     if argc <> 3
-    then Printf.printf "Usage: ./life [3] [23], for regular B3/S23 rules\n";
-    exit 0
+    then Printf.printf "Usage: ./life [3] [23], for regular B3/S23 rules\n"
 
 module View : 
 sig
