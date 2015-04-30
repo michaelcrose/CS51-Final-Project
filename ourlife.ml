@@ -3,15 +3,18 @@
 (* Compile with ocamlopt -o life graphics.cmxa ourlife.ml *)
 (* Run with ./life *)
 
+(* Declares the types to be used *)
 type state = Dead | Alive
 type cell = {state : state; age : int}
 type grid = cell array array
 
+(* Error-proofing *)
 let argc = Array.length Sys.argv
   let () =
-    if argc <> 3
-    then Printf.printf "Usage: ./life [3] [23], for regular B3/S23 rules\n"
+    if argc <> 4
+    then Printf.printf "Usage: ./life [random|acorn|square] 3 23, for regular B3/S23 rules\n";
 
+(* Module to handle the grid *)
 module View : 
 sig
   val size_x : int
@@ -24,6 +27,7 @@ struct
 
   open Graphics
     
+(* Initializes the graphics window *)
   let () =
     open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
     display_mode false;
@@ -40,6 +44,7 @@ struct
   let s = rand_init()
   let t = rand_init()
 
+(* Draw function that takes into account age for color *)
   let draw w =
     let n = Array.length w in
     let m = Array.length w.(0) in
@@ -59,6 +64,8 @@ struct
   let close = close_graph
 
 end
+
+(* Module to handle the algorithm *)
 
 module Model : 
 sig
@@ -97,8 +104,14 @@ struct
       View.draw !w
 
   let () = rand ()
-  (* Random initialization of [w] *)
+(* Initializer *)	
+  (* let () = 
+    match Sys.argv.(1) with
+    | "acorn" -> acorn ()
+    | "random" -> rand ()
+    | "square" -> square () *)
 
+(* Function that returns a list of neighbours *)
   let neighbors w x y =
     let h = Array.length w - 1 in
     let v = Array.length w.(0) - 1 in
@@ -109,6 +122,7 @@ struct
     let yn = if y = v then 0 else y + 1 in
     [ wp.(y).state; wp.(yp).state; wi.(yp).state; wn.(yp).state; wn.(y).state; wn.(yn).state; wi.(yn).state; wp.(yn).state]
 
+(* Helper functions for implementing dynamic user inputed rules *)
   let rec rules_boolean lst n =
     match lst with
     | [] -> false
@@ -125,6 +139,7 @@ struct
   let b_rules = int_to_list (int_of_string Sys.argv.(1))
   let s_rules =  int_to_list (int_of_string Sys.argv.(2))
 
+(* Function to iterate one step in the grid *)
   let next_one_state x y = 
     let n = 
       List.fold_left (* make this compatible with new cell type *)
@@ -139,7 +154,7 @@ struct
       if rules_boolean s_rules n
       then {state = Alive; age = !w.(x).(y).age + 1}
       else {state = Dead; age = 0}
-
+(* Function to draw the next step *)
   let next_state () =
     let x = get_x () in
     let y = get_y () in
@@ -147,6 +162,7 @@ struct
     View.draw !w
 end
 
+(* Infinite loop to run algorithm *)
 let () = 
     while true do Model.next_state () done
 
