@@ -13,6 +13,7 @@ sig
   val size_y : int
   val draw : grid -> unit
   val close : unit -> unit
+  val rand_init : unit -> int
 end =
 struct
 
@@ -31,19 +32,23 @@ struct
   let size_x = size_x ()
   let size_y = size_y ()
 
+  let rand_init () = 
+    Random.self_init();
+    Random.int 255
+  
+  let r = rand_init()
+  let s = rand_init()
+  let t = rand_init()
+
   let draw w =
     let n = Array.length w in
     let m = Array.length w.(0) in
     let x = size_x / n in
     let y = size_y / m in
     for i = 0 to n - 1 do
-      for j = 0 to m - 1 do (* COLOR NEEDS TO BE CHANGED BASED ON AGE *)
-<<<<<<< HEAD
-	set_color (match w.(i).(j).state with Dead -> black | Alive -> 
-	  Graphics.rgb (255 ((255 + w.(i).(j).age) mod 255) ((255 + w.(i).(j).age) mod 255)));
-=======
-        set_color (match w.(i).(j).state with Dead -> white | Alive -> Graphics.rgb (w.(i).(j).age+(Random.int 255)) (w.(i).(j).age+(Random.int 255)) (w.(i).(j).age+(Random.int 255)));
->>>>>>> 43de3c4c0eeb1c2a9f48308bf19cd15ee1b1f2c4
+      for j = 0 to m - 1 do
+        set_color (match w.(i).(j).state with Dead -> white | Alive -> 
+	  Graphics.rgb (w.(i).(j).age+r) (w.(i).(j).age+s) (w.(i).(j).age+t));
 	let a = i * x in
 	let b = j * y in
 	fill_rect a b x y;
