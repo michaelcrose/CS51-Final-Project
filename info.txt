@@ -1,0 +1,2 @@
+title: Conway’s Game of Life
+seas-usernames: 60834253, larryguo, maria mclaughlin, emcpherson
