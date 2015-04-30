@@ -8,12 +8,6 @@ type state = Dead | Alive
 type cell = {state : state; age : int}
 type grid = cell array array
 
-(* Error-proofing *)
-let argc = Array.length Sys.argv
-  let () =
-    if argc <> 4
-    then Printf.printf "Usage: ./life [random|acorn|square] 3 23, for regular B3/S23 rules\n";
-
 (* Module to handle the grid *)
 module View : 
 sig
@@ -27,7 +21,7 @@ struct
 
   open Graphics
     
-(* Initializes the graphics window *)
+  (* Initializes the graphics window *)
   let () =
     open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
     display_mode false;
@@ -39,12 +33,12 @@ struct
   let rand_init () = 
     Random.self_init();
     Random.int 255
-  
+      
   let r = rand_init()
   let s = rand_init()
   let t = rand_init()
 
-(* Draw function that takes into account age for color *)
+  (* Draw function that takes into account age for color *)
   let draw w =
     let n = Array.length w in
     let m = Array.length w.(0) in
@@ -103,15 +97,23 @@ struct
 	(fun _ -> if Random.bool () then {state = Dead; age = 0} else {state = Alive; age = 0}));
       View.draw !w
 
-  let () = rand ()
-(* Initializer *)	
-  (* let () = 
-    match Sys.argv.(1) with
-    | "acorn" -> acorn ()
-    | "random" -> rand ()
-    | "square" -> square () *)
+  (* Initializer *)	
+  let () = 
+    let argc = Array.length Sys.argv in
+    let init = 
+      let default () = (print_endline "Using random start"; rand()) in
+      if argc = 3 then default ()
+      else if argc < 3 then exit 0
+      else
+	match Sys.argv.(1) with
+	(* | "acorn" -> acorn () *)
+	| "random" -> rand ()
+	(* | "square" -> square () *)
+	| _ -> Printf.printf
+          "Usage: %s [acorn|random|square] 3 23, for regular B3/S23 rules\n" Sys.argv.(0);
+          exit 0 in init
 
-(* Function that returns a list of neighbours *)
+  (* Function that returns a list of neighbours *)
   let neighbors w x y =
     let h = Array.length w - 1 in
     let v = Array.length w.(0) - 1 in
@@ -122,7 +124,7 @@ struct
     let yn = if y = v then 0 else y + 1 in
     [ wp.(y).state; wp.(yp).state; wi.(yp).state; wn.(yp).state; wn.(y).state; wn.(yn).state; wi.(yn).state; wp.(yn).state]
 
-(* Helper functions for implementing dynamic user inputed rules *)
+  (* Helper functions for implementing dynamic user inputed rules *)
   let rec rules_boolean lst n =
     match lst with
     | [] -> false
@@ -135,11 +137,12 @@ struct
     match n with
     | 0 -> [0]
     | _ -> loop n []
-  
-  let b_rules = int_to_list (int_of_string Sys.argv.(1))
-  let s_rules =  int_to_list (int_of_string Sys.argv.(2))
 
-(* Function to iterate one step in the grid *)
+  let argc = Array.length Sys.argv
+  let b_rules = if argc = 4 then int_to_list (int_of_string Sys.argv.(2)) else int_to_list (int_of_string Sys.argv.(1))
+  let s_rules = if argc = 4 then int_to_list (int_of_string Sys.argv.(3)) else int_to_list (int_of_string Sys.argv.(2))
+
+  (* Function to iterate one step in the grid *)
   let next_one_state x y = 
     let n = 
       List.fold_left (* make this compatible with new cell type *)
@@ -154,7 +157,7 @@ struct
       if rules_boolean s_rules n
       then {state = Alive; age = !w.(x).(y).age + 1}
       else {state = Dead; age = 0}
-(* Function to draw the next step *)
+  (* Function to draw the next step *)
   let next_state () =
     let x = get_x () in
     let y = get_y () in
@@ -164,5 +167,5 @@ end
 
 (* Infinite loop to run algorithm *)
 let () = 
-    while true do Model.next_state () done
+  while true do Model.next_state () done
 
