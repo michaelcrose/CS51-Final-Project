@@ -7,6 +7,12 @@ type state = Dead | Alive
 type cell = {state : state; age : int}
 type grid = cell array array
 
+let argc = Array.length Sys.argv
+  let () =
+    if argc <> 3
+    then Printf.printf "Usage: ./life [3] [23], for regular B3/S23 rules\n";
+    exit 0
+
 module View : 
 sig
   val size_x : int
@@ -19,15 +25,8 @@ struct
 
   open Graphics
     
-  let argc = Array.length Sys.argv;
-  if argc < 3 then Printf.printf "Needs three arguments, [rules] [width] [height]"
-else
-  let width = Sys.argv.(2);
-  let height = Sys.argv.(3);
-  let rules = Sys.argv.(1);
-
   let () =
-    open_graph (Sys.getenv "DISPLAY" ^ " " ^ width ^ "x" ^ height);
+    open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
     display_mode false;
     set_window_title "Game of Life"
 
@@ -111,6 +110,22 @@ struct
     let yn = if y = v then 0 else y + 1 in
     [ wp.(y).state; wp.(yp).state; wi.(yp).state; wn.(yp).state; wn.(y).state; wn.(yn).state; wi.(yn).state; wp.(yn).state]
 
+  let rec rules_boolean lst n =
+    match lst with
+    | [] -> false
+    | hd::tl -> if hd = n then true else rules_boolean tl n
+
+  let int_to_list n =
+    let rec loop n acc =
+      if n = 0 then acc
+      else loop (n/10) (n mod 10::acc) in
+    match n with
+    | 0 -> [0]
+    | _ -> loop n []
+  
+  let b_rules = int_to_list (int_of_string Sys.argv.(1))
+  let s_rules =  int_to_list (int_of_string Sys.argv.(2))
+
   let next_one_state x y = 
     let n = 
       List.fold_left (* make this compatible with new cell type *)
@@ -118,13 +133,13 @@ struct
     in
     match !w.(x).(y).state with
     | Dead ->
-      if n = 3
+      if rules_boolean b_rules n
       then {state = Alive; age = 0}
       else {state = Dead; age = !w.(x).(y).age + 1}
     | Alive ->
-      if n < 2 || n > 3
-      then {state = Dead; age = 0}
-      else {state = Alive; age = !w.(x).(y).age + 1}
+      if rules_boolean s_rules n
+      then {state = Alive; age = !w.(x).(y).age + 1}
+      else {state = Dead; age = 0}
 
   let next_state () =
     let x = get_x () in
