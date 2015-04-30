@@ -48,7 +48,7 @@ struct
     let y = size_y / m in
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do
-        set_color (match w.(i).(j).state with Dead -> white | Alive -> 
+        set_color (match w.(i).(j).state with Dead -> black | Alive -> 
 	  Graphics.rgb (w.(i).(j).age+r) (w.(i).(j).age+s) (w.(i).(j).age+t));
 	let a = i * x in
 	let b = j * y in
@@ -150,3 +150,4 @@ end
 
 let () = 
     while true do Model.next_state () done
+
