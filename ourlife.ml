@@ -18,10 +18,12 @@ struct
 
   open Graphics
     
-  let argc = Array.length Sys.argv
-  let width = if argc > 2 then Sys.argv.(2) else "500"
-  let height = if argc > 3 then Sys.argv.(3) else "500"
-  let rules = if argc > 1 then Sys.argv.(1) else "B3/S23" (* isn't used yet *)
+  let argc = Array.length Sys.argv;
+  if argc < 3 then Printf.printf "Needs three arguments, [rules] [width] [height]"
+else
+  let width = Sys.argv.(2);
+  let height = Sys.argv.(3);
+  let rules = Sys.argv.(1);
 
   let () =
     open_graph (Sys.getenv "DISPLAY" ^ " " ^ width ^ "x" ^ height);
