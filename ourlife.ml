@@ -23,17 +23,19 @@ struct
     
   (* Initializes the graphics window *)
   let () =
-    open_graph (Sys.getenv "DISPLAY" ^ " 512x512");
+    open_graph (Sys.getenv "DISPLAY" ^ " 768x768");
     display_mode false;
     set_window_title "Game of Life"
 
   let size_x = size_x ()
   let size_y = size_y ()
-
+  
+  (* generates a random int for use in color *) 
   let rand_init () = 
     Random.self_init();
     Random.int 255
-      
+  
+  (* initializes the random int generator *)
   let r = rand_init()
   let s = rand_init()
   let t = rand_init()
@@ -97,6 +99,38 @@ struct
 	(fun _ -> if Random.bool () then {state = Dead; age = 0} else {state = Alive; age = 0}));
       View.draw !w
 
+  let acorn =
+    fun () ->
+      w := Array.init !x (fun _ -> Array.init !y
+	(fun _ -> {state = Dead; age = 0}));
+      let a = (Array.length !w)/2 in
+      let b = (Array.length !w.(0))/2 in
+      !w.(a).(b) <- {state = Alive; age = 0};
+      !w.(a-2).(b+1) <- {state = Alive; age = 0};
+      !w.(a-2).(b-1) <- {state = Alive; age = 0};
+      !w.(a-3).(b-1) <- {state = Alive; age = 0};
+      !w.(a+1).(b-1) <- {state = Alive; age = 0};
+      !w.(a+2).(b-1) <- {state = Alive; age = 0};
+      !w.(a+3).(b-1) <- {state = Alive; age = 0};
+      View.draw !w
+
+  let square =
+    fun () ->
+      w := Array.init !x (fun _ -> Array.init !y
+	(fun _ -> {state = Dead; age = 0}));
+      let a = (Array.length !w)/2 in
+      let b = (Array.length !w.(0))/2 in
+      !w.(a).(b) <- {state = Alive; age = 0};
+      !w.(a+1).(b) <- {state = Alive; age = 0};
+      !w.(a+2).(b) <- {state = Alive; age = 0};
+      !w.(a).(b+1) <- {state = Alive; age = 0};
+      !w.(a+1).(b+1) <- {state = Alive; age = 0};
+      !w.(a+2).(b+1) <- {state = Alive; age = 0};
+      !w.(a).(b+2) <- {state = Alive; age = 0};
+      !w.(a+1).(b+2) <- {state = Alive; age = 0};
+      !w.(a+2).(b+2) <- {state = Alive; age = 0};
+      View.draw !w
+
   (* Initializer *)	
   let () = 
     let argc = Array.length Sys.argv in
@@ -106,9 +140,9 @@ struct
       else if argc < 3 then exit 0
       else
 	match Sys.argv.(1) with
-	(* | "acorn" -> acorn () *)
+	| "acorn" -> acorn ()
 	| "random" -> rand ()
-	(* | "square" -> square () *)
+	| "square" -> square ()
 	| _ -> Printf.printf
           "Usage: %s [acorn|random|square] 3 23, for regular B3/S23 rules\n" Sys.argv.(0);
           exit 0 in init
@@ -145,7 +179,7 @@ struct
   (* Function to iterate one step in the grid *)
   let next_one_state x y = 
     let n = 
-      List.fold_left (* make this compatible with new cell type *)
+      List.fold_left
 	(fun a -> function Alive -> a + 1 | Dead -> a) 0 (neighbors !w x y)
     in
     match !w.(x).(y).state with
